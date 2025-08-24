@@ -39,9 +39,60 @@ $result = $conn->query($sql);
     <meta charset="UTF-8">
     <title>Menu - Food Ordering System</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .menu-item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; width: 250px; display: inline-block; vertical-align: top; }
-        .menu-item img { width: 200px; height: 150px; object-fit: cover; border-radius: 8px; }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        h1 { margin-bottom: 10px; }
+        a { margin-right: 10px; text-decoration: none; color: #007BFF; }
+        a:hover { text-decoration: underline; }
+
+        .menu-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .menu-item { 
+            border: 1px solid #ccc; 
+            padding: 15px; 
+            width: 220px; 
+            background-color: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .menu-item:hover { transform: scale(1.03); }
+
+        .menu-item img { 
+            width: 100%; 
+            height: 150px; 
+            object-fit: cover; 
+            border-radius: 6px; 
+            margin-bottom: 10px; 
+        }
+
+        .menu-item h3 { margin: 0 0 10px 0; font-size: 1.1em; }
+        .menu-item p { margin: 5px 0; font-size: 0.95em; }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #218838; }
+
+        input[type="number"] {
+            width: 50px;
+            padding: 4px;
+            margin-right: 5px;
+        }
+
+        /* Responsive for mobile */
+        @media (max-width: 768px) {
+            .menu-grid { flex-direction: column; align-items: center; }
+            .menu-item { width: 90%; }
+        }
     </style>
 </head>
 <body>
@@ -53,25 +104,20 @@ $result = $conn->query($sql);
 
     <?php if(isset($message)) { echo "<p style='color:green;'>$message</p>"; } ?>
 
+    <div class="menu-grid">
     <?php
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
+            $imagePath = "../assets/images/" . $row['image'];
+            $imageSrc = (!empty($row['image']) && file_exists($imagePath)) ? $imagePath : "../assets/images/no-image.png";
             ?>
             <div class="menu-item">
-                <h3><?php echo $row['name'] . " - " . $row['restaurant_name']; ?></h3>
+                <img src="<?php echo $imageSrc; ?>" alt="<?php echo $row['name']; ?>">
+                <h3><?php echo $row['name']; ?></h3>
+                <p><strong>Restaurant:</strong> <?php echo $row['restaurant_name']; ?></p>
                 <p><?php echo $row['description']; ?></p>
-                <p>Price: Rs <?php echo $row['price']; ?></p>
-                
-                <?php 
-                // Check if image exists, else show placeholder
-                $imagePath = "../assets/images/" . $row['image'];
-                if(!empty($row['image']) && file_exists($imagePath)) { ?>
-                    <img src="<?php echo $imagePath; ?>" alt="<?php echo $row['name']; ?>">
-                <?php } else { ?>
-                    <img src="../assets/images/no-image.png" alt="No Image Available">
-                <?php } ?>
-
-                <form method="POST" style="margin-top:10px;">
+                <p><strong>Price:</strong> Rs <?php echo $row['price']; ?></p>
+                <form method="POST">
                     <input type="hidden" name="item_id" value="<?php echo $row['id']; ?>">
                     <input type="number" name="quantity" value="1" min="1" required>
                     <button type="submit" name="add_to_cart">Add to Cart</button>
@@ -84,5 +130,6 @@ $result = $conn->query($sql);
     }
     $conn->close();
     ?>
+    </div>
 </body>
 </html>
