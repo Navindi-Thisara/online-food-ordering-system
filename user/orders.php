@@ -82,14 +82,15 @@ $orders_result = $stmt->get_result();
                         $items_result = $item_stmt->get_result();
 
                         while ($item = $items_result->fetch_assoc()):
+                            // Image paths
+                            $imageFile = "../assets/images/" . $item['image'];
+                            $imageUrl  = (is_file($imageFile) && !empty($item['image']))
+                                ? $imageFile
+                                : "../assets/images/no-image.png";
                         ?>
                             <div class="order-item">
-                                <?php if(!empty($item['image']) && file_exists("../assets/images/".$item['image'])): ?>
-                                    <img src="../assets/images/<?php echo $item['image']; ?>" alt="<?php echo $item['name']; ?>">
-                                <?php else: ?>
-                                    <img src="../assets/images/no-image.png" alt="No Image">
-                                <?php endif; ?>
-                                <span><?php echo $item['name'] . " x " . $item['quantity'] . " (Rs " . $item['subtotal'] . ")"; ?></span>
+                                <img src="<?php echo $imageUrl; ?>" alt="<?php echo htmlspecialchars($item['name']); ?>">
+                                <span><?php echo htmlspecialchars($item['name']) . " x " . $item['quantity'] . " (Rs " . $item['subtotal'] . ")"; ?></span>
                             </div>
                         <?php endwhile; ?>
                     </td>
