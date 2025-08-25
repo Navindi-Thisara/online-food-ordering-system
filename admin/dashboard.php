@@ -17,7 +17,7 @@ $total_orders = $conn->query("SELECT COUNT(*) AS total_orders FROM orders")->fet
 // Fetch Pending Orders
 $pending_orders = $conn->query("SELECT COUNT(*) AS pending_orders FROM orders WHERE status='Pending'")->fetch_assoc()['pending_orders'];
 
-// Fetch Total Revenue
+// Fetch Total Revenue (Confirmed + Delivered)
 $total_revenue = $conn->query("SELECT SUM(total_amount) AS total_revenue FROM orders WHERE status IN ('Confirmed','Delivered')")->fetch_assoc()['total_revenue'] ?? 0;
 ?>
 
@@ -26,7 +26,6 @@ $total_revenue = $conn->query("SELECT SUM(total_amount) AS total_revenue FROM or
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard</title>
-    <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
@@ -55,6 +54,8 @@ $total_revenue = $conn->query("SELECT SUM(total_amount) AS total_revenue FROM or
         .orders { background-color: #e67e22; }
         .pending { background-color: #f1c40f; color: #333; }
         .revenue { background-color: #2ecc71; }
+        .menu { background-color: #9b59b6; }
+        .restaurants { background-color: #e74c3c; }
 
         @media (max-width: 768px) {
             .cards { flex-direction: column; }
@@ -63,38 +64,60 @@ $total_revenue = $conn->query("SELECT SUM(total_amount) AS total_revenue FROM or
 </head>
 <body>
     <h1>Admin Dashboard</h1>
-    <a class="logout" href="../logout.php">Logout</a>
+    <a class="logout" href="logout.php">Logout</a>
 
     <div class="cards">
+        <!-- Manage Users -->
         <a class="card-link" href="manage_users.php">
             <div class="card users">
                 <i class="fas fa-users"></i>
-                <h2><?php echo $total_users; ?></h2>
-                <p>Total Users</p>
+                <h2><?= $total_users ?></h2>
+                <p>Manage Users</p>
             </div>
         </a>
 
+        <!-- Manage Orders -->
         <a class="card-link" href="manage_orders.php">
             <div class="card orders">
                 <i class="fas fa-box-open"></i>
-                <h2><?php echo $total_orders; ?></h2>
-                <p>Total Orders</p>
+                <h2><?= $total_orders ?></h2>
+                <p>Manage Orders</p>
             </div>
         </a>
 
-        <a class="card-link" href="manage_orders.php?status=Pending">
+        <!-- Pending Orders -->
+        <a class="card-link" href="pending_orders.php">
             <div class="card pending">
                 <i class="fas fa-clock"></i>
-                <h2><?php echo $pending_orders; ?></h2>
+                <h2><?= $pending_orders ?></h2>
                 <p>Pending Orders</p>
             </div>
         </a>
 
-        <a class="card-link" href="manage_orders.php">
+        <!-- Total Revenue -->
+        <a class="card-link" href="revenue.php">
             <div class="card revenue">
                 <i class="fas fa-money-bill-wave"></i>
-                <h2>Rs <?php echo number_format($total_revenue, 2); ?></h2>
+                <h2>Rs <?= number_format($total_revenue, 2) ?></h2>
                 <p>Total Revenue</p>
+            </div>
+        </a>
+
+        <!-- Manage Menu -->
+        <a class="card-link" href="manage_menu.php">
+            <div class="card menu">
+                <i class="fas fa-utensils"></i>
+                <h2>Menu</h2>
+                <p>Manage Menu Items</p>
+            </div>
+        </a>
+
+        <!-- Manage Restaurants -->
+        <a class="card-link" href="manage_restaurants.php">
+            <div class="card restaurants">
+                <i class="fas fa-store"></i>
+                <h2>Restaurants</h2>
+                <p>Manage Restaurants</p>
             </div>
         </a>
     </div>

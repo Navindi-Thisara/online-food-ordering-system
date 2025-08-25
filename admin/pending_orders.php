@@ -19,18 +19,19 @@ if (isset($_POST['update_status'])) {
     $stmt->bind_param("si", $status, $id);
 
     if ($stmt->execute()) {
-        $message = "<div class='alert alert-success text-center'>Order #$id updated successfully!</div>";
+        $message = "<div class='alert alert-success text-center mt-2'>Order #$id updated successfully!</div>";
     } else {
-        $message = "<div class='alert alert-danger text-center'>Failed to update order. Please try again.</div>";
+        $message = "<div class='alert alert-danger text-center mt-2'>Failed to update order. Please try again.</div>";
     }
     $stmt->close();
 }
 
-// Fetch all orders with user name
+// Fetch only pending orders
 $orders = $conn->query("
     SELECT o.id, o.created_at, o.total_amount, o.status, u.name AS username
     FROM orders o
     JOIN users u ON o.user_id = u.id
+    WHERE o.status='Pending'
     ORDER BY o.created_at DESC
 ");
 ?>
@@ -38,12 +39,12 @@ $orders = $conn->query("
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Manage Orders - Admin</title>
+    <title>Pending Orders - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
 <div class="container py-5">
-    <h2 class="mb-4 text-center">Manage Orders</h2>
+    <h2 class="mb-4 text-center">Pending Orders</h2>
 
     <!-- Success/Error Messages -->
     <?php if ($message) echo $message; ?>
@@ -69,22 +70,16 @@ $orders = $conn->query("
                         <td><?= date("d M Y, h:i A", strtotime($row['created_at'])) ?></td>
                         <td>Rs <?= number_format($row['total_amount'], 2) ?></td>
                         <td>
-                            <span class="badge 
-                                <?= $row['status'] == 'Pending' ? 'bg-warning' : '' ?>
-                                <?= $row['status'] == 'Confirmed' ? 'bg-info' : '' ?>
-                                <?= $row['status'] == 'Delivered' ? 'bg-success' : '' ?>
-                                <?= $row['status'] == 'Cancelled' ? 'bg-danger' : '' ?>">
-                                <?= $row['status'] ?>
-                            </span>
+                            <span class="badge bg-warning"><?= $row['status'] ?></span>
                         </td>
                         <td>
                             <form method="POST" class="d-flex gap-2">
                                 <input type="hidden" name="order_id" value="<?= $row['id'] ?>">
                                 <select name="status" class="form-select form-select-sm">
-                                    <option value="Pending" <?= $row['status']=="Pending"?"selected":"" ?>>Pending</option>
-                                    <option value="Confirmed" <?= $row['status']=="Confirmed"?"selected":"" ?>>Confirmed</option>
-                                    <option value="Delivered" <?= $row['status']=="Delivered"?"selected":"" ?>>Delivered</option>
-                                    <option value="Cancelled" <?= $row['status']=="Cancelled"?"selected":"" ?>>Cancelled</option>
+                                    <option value="Pending" selected>Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
                                 </select>
                                 <button type="submit" name="update_status" class="btn btn-sm btn-primary">Update</button>
                             </form>
@@ -93,7 +88,7 @@ $orders = $conn->query("
                 <?php endwhile; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="6" class="text-center text-muted">No orders found.</td>
+                    <td colspan="6" class="text-center text-muted">No pending orders found.</td>
                 </tr>
             <?php endif; ?>
             </tbody>
@@ -102,3 +97,4 @@ $orders = $conn->query("
 </div>
 </body>
 </html>
+<?php $conn->close(); ?>
