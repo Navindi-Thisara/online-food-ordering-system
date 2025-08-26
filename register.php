@@ -1,16 +1,8 @@
 <?php
-// Database connection settings
-$servername = "localhost:3307";
-$username = "root";   
-$password = "";    
-$dbname = "food_ordering_system"; 
+session_start();
+include("includes/db_connect.php");
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+$message = '';
 
 if (isset($_POST['register'])) {
     $name = trim($_POST['name']);
@@ -28,7 +20,7 @@ if (isset($_POST['register'])) {
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        echo "Email already registered. Please use another email.";
+        $message = "Email already registered. Please use another email.";
     } else {
         // Insert new user
         $sql = "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 'user')";
@@ -36,11 +28,90 @@ if (isset($_POST['register'])) {
         $stmt->bind_param("sss", $name, $email, $hashedPassword);
 
         if ($stmt->execute()) {
-            echo "Registration successful! You can now <a href='login.html'>login</a>.";
+            $message = "Registration successful! You can now <a href='login.php'>login</a>.";
         } else {
-            echo "Error: " . $conn->error;
+            $message = "Error: " . $conn->error;
         }
     }
 }
+
 $conn->close();
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Food Ordering System</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('assets/images/home-bg.png') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+        .container {
+            background-color: rgba(0,0,0,0.7);
+            padding: 30px;
+            border-radius: 10px;
+            width: 320px;
+            text-align: center;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .login-link {
+            display: block;
+            margin-top: 15px;
+            color: #ffc107;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .login-link:hover {
+            color: #e0a800;
+        }
+        .message {
+            margin-bottom: 15px;
+            color: #ffcccb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <?php if ($message): ?>
+            <div class="message"><?= $message ?></div>
+        <?php endif; ?>
+        <form action="" method="POST">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit" name="register">Register</button>
+        </form>
+        <a href="login.php" class="login-link">Already have an account? Login</a>
+    </div>
+</body>
+</html>
