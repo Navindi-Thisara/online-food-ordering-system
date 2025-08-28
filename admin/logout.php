@@ -1,11 +1,11 @@
 <?php
 session_start();
-
-// Clear all session data
 session_unset();
 session_destroy();
 
-// Redirect admin to login page
-header("Location: ../login.html"); 
+// Start a new session to store the logout message
+session_start();
+$_SESSION['logout_success'] = "You have been logged out successfully.";
+header("Location: ../login.php");
 exit();
 ?>
